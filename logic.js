@@ -1,308 +1,309 @@
-// A simple function for navigating a multidimensional array
+// A simple program for navigating a multidimensional array
 
 //Even though I am navigating in two-dimensional space, my array has three dimensions:
-    //One for going up and down
-    //One for going side to side
-    //One for rotating in place
+//One for going up and down
+//One for going side to side
+//One for rotating in place
 
-//This array will attempt to approximate the museum I work at:
 
 // Within the sub-sub-arrays:
-    //0 = north
-    //1 = east
-    //2 = south
-    //3 = west
+//           0 = north
+// west = 3     1 = east
+//           2 = south
 
-// For example, each index in the array can be an html img tag of a perspective in a room, allowing the user to click through an area in Myst-fashion
+// For example, each index in the array can be an HTML img tag of a perspective in a room, 
+// allowing the user to click through an area, like in the game Myst
 
-var museumArray = [
+// GLOBAL VARIABLES AND FUNCTIONS START
 
-[ [          ], [          ], [          ], [          ] ],
-[ [          ], [          ], [0, 1, 2, 3], [          ] ],
-[ [          ], [          ], [0, 1, 2, 3], [          ] ],
-[ [          ], [0, 1, 2, 3], [0, 1, 2, 3], [          ] ],
-[ [          ], [0, 1, 2, 3], [0, 1, 2, 3], [          ] ],
-[ [          ], [          ], [0, 1, 2, 3], [          ] ],
-[ [          ], [          ], [          ], [          ] ]
+//Perhaps some of these need not be global?
 
-];
+//This array will attempt to approximate the museum where I work:
 
 var x = 5;
 var y = 2;
 var z = 0;
 
+var direction;
+
+var canMoveForward;
+var canMoveBackward;
+
+infoPackage();
+
+// GLOBAL VARIABLES AND FUNCTIONS END
+
+function showCoordinates() {
+    console.log(x + "," + y + "," + z);
+};
+
+function movementConditionals(isThereAWall, movementForward, movementBackward) {
+
+    if ((movementForward === undefined) || (isThereAWall === "wall")) {
+        canMoveForward = false;
+    } else {
+        canMoveForward = true;
+    }
+
+    if ((movementBackward === undefined) || (isThereAWall === "wall")) {
+        canMoveBackward = false;
+    } else {
+        canMoveBackward = true;
+    }
+};
+
+// Check if an adjacent array is out-of-bounds
+
+function checkMovements(array) {
+
+    var arrayForwardAtZ0 = array[(x - 1)][y].zArray;
+    var arrayBackwardAtZ0 = array[(x + 1)][y].zArray;
+    var arrayForwardAtZ1 = array[x][(y + 1)].zArray;
+    var arrayBackwardAtZ1 = array[x][(y - 1)].zArray;
+    var arrayForwardAtZ2 = arrayBackwardAtZ0;
+    var arrayBackwardAtZ2 = arrayForwardAtZ0;
+    var arrayForwardAtZ3 = arrayBackwardAtZ1;
+    var arrayBackwardAtZ3 = arrayForwardAtZ1;
+
+    var isThereAWall = array[x][y].zArray[z];
+
+    var forwardBackwardArray = [
+        [arrayForwardAtZ0, arrayBackwardAtZ0],
+        [arrayForwardAtZ1, arrayBackwardAtZ1],
+        [arrayForwardAtZ2, arrayBackwardAtZ2],
+        [arrayForwardAtZ3, arrayBackwardAtZ3]
+    ];
+
+    for (let i = 0; i < 4; i++) {
+        if (z === i) {
+            movementConditionals(isThereAWall, (forwardBackwardArray[i][0]), (forwardBackwardArray[i][1]));
+        }
+    }
+    changeButtons();
+};
+
+// Provide visual cues to user for whether they can or can't move in a certain direction
+// Here, the visual cue is a grayed-out button
+
+function changeButtons() {
+    if (canMoveForward === false) {
+        buttonStatus("#forwardButton", "off");
+    } else if (canMoveForward === true) {
+        buttonStatus("#forwardButton", "on");
+    }
+
+    if (canMoveBackward === false) {
+        buttonStatus("#backwardButton", "off");
+    } else if (canMoveBackward === true) {
+        buttonStatus("#backwardButton", "on");
+    }
+}
+
+function buttonStatus(button, onOrOff) {
+
+    if (onOrOff === "off") {
+        $(button).css("background-color", "gray");
+    } else if (onOrOff === "on") {
+        $(button).css("background-color", "blue");
+    }
+};
+
+// These functions are called each time a player calls the navigate() function,
+// so they are bundled together. 
+
+function infoPackage() {
+    navigateAudio();
+    showCoordinates();
+    checkMovements(museumArray);
+    getLocation(museumArray);
+};
+
+// jQuery selectors for navigation buttons
+
+$("#forwardButton").on("click", function () {
+    direction = "forward";
+    navigate(direction);
+});
+
+$("#backwardButton").on("click", function () {
+    direction = "backward";
+    navigate(direction);
+});
+
+$("#leftButton").on("click", function () {
+    direction = "ccw";
+    navigate(direction);
+});
+
+$("#rightButton").on("click", function () {
+    direction = "cw";
+    navigate(direction);
+});
+
+$(document).on("keydown", function (event) {
+
+    console.log("You pressed the " + event.originalEvent.key + " key!");
+
+    if (isFunctionRunning === true) {
+        console.log("Hold your horses");
+    } else if (isFunctionRunning === false) {
+        if ((event.originalEvent.key === "w") || (event.originalEvent.key === "ArrowUp")) {
+            direction = "forward";
+            navigate(direction);
+        } else if ((event.originalEvent.key === "a") || (event.originalEvent.key === "ArrowLeft")) {
+            direction = "ccw";
+            navigate(direction);
+        } else if ((event.originalEvent.key === "s") || (event.originalEvent.key === "ArrowDown")) {
+            direction = "backward";
+            navigate(direction);
+        } else if ((event.originalEvent.key === "d") || (event.originalEvent.key === "ArrowRight")) {
+            direction = "cw";
+            navigate(direction);
+        }
+    }   
+});
+
+var footstepsLength;
+
+var isFunctionRunning = false;
+
+function disableMovement(time) {
+    console.log("Disable Movement was called");
+    isFunctionRunning = true;
+    setTimeout(enableMovement, time);
+}
+
+function enableMovement() {
+    console.log("enableMovement was called");
+    isFunctionRunning = false;
+}
+
+function navigateAudio() {
+
+    var footsteps = new Audio();
+    footsteps.src = "audio/footsteps/footsteps.mp3";
+    var littleFootsteps = new Audio();
+    littleFootsteps.src = "audio/footsteps/littleFootsteps.mp3";
+
+    footsteps.addEventListener('loadedmetadata', function() {
+        footstepsLength = (footsteps.duration * 1000);
+        console.log(footstepsLength);
+    });
+
+    littleFootsteps.addEventListener('loadedmetadata', function() {
+        littleFootstepsLength = (littleFootsteps.duration * 1000);
+        console.log(littleFootstepsLength);
+    });
+
+
+    if (((direction === "forward") && (canMoveForward === true)) || ((direction === "backward") && (canMoveBackward === true))) {
+        console.log("footsteps");
+        disableMovement(footstepsLength);
+        footsteps.play();
+    } else if ((direction === "ccw") || (direction === "cw")) {
+        console.log("little footsteps");
+        disableMovement(littleFootstepsLength);
+        littleFootsteps.play();
+        console.log(littleFootsteps.duration);
+    } else {
+        console.log("no footsteps");
+    }
+};
+
 function navigate(direction) {
 
-if (z === 0) {
-    if (direction === "forward") {
-        if (museumArray[(x - 1)][y][z] === undefined) {
-            console.log("Not permitted");
-        } else {
+    if (((direction === "forward") && (canMoveForward === false)) || ((direction === "backward") && (canMoveBackward === false))) {
+        console.log("Not permitted");
+    } else if (z === 0) {
+        if ((direction === "forward") && (canMoveForward === true)) {
             x--;
-            console.log(x + "," + y + "," + z);
-            getLocation();
-        }
-    } else if (direction === "backward") {
-        if (museumArray[(x + 1)][y][z] === undefined) {
-            console.log("Not permitted");
-        } else {
+        } else if ((direction === "backward") && (canMoveBackward === true)) {
             x++;
-            console.log(x + "," + y + "," + z);
-            getLocation();
         }
-    } else if (direction === "left") {
-        if (museumArray[x][(y - 1)][z] === undefined) {
-            console.log("Not permitted");
-        } else {
-            y--;
-            console.log(x + "," + y + "," + z);
-            getLocation();
-        }
-    } else if (direction === "right") {
-        if (museumArray[x][(y + 1)][z] === undefined) {
-            console.log("Not permitted");
-        } else {
+    } else if (z === 1) {
+        if ((direction === "forward") && (canMoveForward === true)) {
             y++;
-            console.log(x + "," + y + "," + z);
-            getLocation();
-        }
-    }
-
-} else if (z === 1) {
-    if (direction === "forward") {
-        if (museumArray[x][(y + 1)][z] === undefined) {
-            console.log("Not permitted");
-        } else {
-            y++;
-            console.log(x + "," + y + "," + z);
-            getLocation();
-        }
-    } else if (direction === "backward") {
-        if (museumArray[x][(y - 1)][z] === undefined) {
-            console.log("Not permitted");
-        } else {
+        } else if ((direction === "backward") && (canMoveBackward === true)) {
             y--;
-            console.log(x + "," + y + "," + z);
-            getLocation();
         }
-    } else if (direction === "left") {
-        if (museumArray[(x - 1)][y][z] === undefined) {
-            console.log("Not permitted");
-        } else {
+    } else if (z === 2) {
+        if ((direction === "forward") && (canMoveForward === true)) {
+            x++;
+        } else if ((direction === "backward") && (canMoveBackward === true)) {
             x--;
-            console.log(x + "," + y + "," + z);
-            getLocation();
         }
-    } else if (direction === "right") {
-        if (museumArray[(x + 1)][y][z] === undefined) {
-            console.log("Not permitted");
-        } else {
-            x++;
-            console.log(x + "," + y + "," + z);
-            getLocation();
-        }
-    }
-
-} else if (z === 2) {
-    if (direction === "forward") {
-        if (museumArray[(x + 1)][y][z] === undefined) {
-            console.log("Not permitted");
-        } else {
-            x++;
-            console.log(x + "," + y + "," + z);
-            getLocation();
-        }
-    } else if (direction === "backward") {
-        if (museumArray[(x - 1)][y][z] === undefined) {
-            console.log("Not permitted");
-        } else {
-            x--;
-            console.log(x + "," + y + "," + z);
-            getLocation();
-        }
-    } else if (direction === "left") {
-        if (museumArray[x][(y + 1)][z] === undefined) {
-            console.log("Not permitted");
-        } else {
-            y++;
-            console.log(x + "," + y + "," + z);
-            getLocation();
-        }
-    } else if (direction === "right") {
-        if (museumArray[x][(y - 1)][z] === undefined) {
-            console.log("Not permitted");
-        } else {
+    } else if (z === 3) {
+        if ((direction === "forward") && (canMoveForward === true)) {
             y--;
-            console.log(x + "," + y + "," + z);
-            getLocation();
-        }
-    }
-
-} else if (z === 3) {
-    if (direction === "forward") {
-        if (museumArray[x][(y - 1)][z] === undefined) {
-            console.log("Not permitted");
-        } else {
-            y--;
-            console.log(x + "," + y + "," + z);
-            getLocation();
-        }
-    } else if (direction === "backward") {
-        if (museumArray[x][(y + 1)][z] === undefined) {
-            console.log("Not permitted");
-        } else {
+        } else if ((direction === "backward") && (canMoveBackward === true)) {
             y++;
-            console.log(x + "," + y + "," + z);
-            getLocation();
         }
-    } else if (direction === "left") {
-        if (museumArray[(x + 1)][y][z] === undefined) {
-            console.log("Not permitted");
+    }
+
+    if (direction === "cw") {
+        if (z === 3) {
+            z = 0;
         } else {
-            x++;
-            console.log(x + "," + y + "," + z);
-            getLocation();
+            z++;
         }
-    } else if (direction === "right") {
-        if (museumArray[x - 1][y][z] === undefined) {
-            console.log("Not permitted");
+    }
+
+    if (direction === "ccw") {
+        if (z === 0) {
+            z = 3;
         } else {
-            x--;
-            console.log(x + "," + y + "," + z);
-            getLocation();
+            z--;
         }
     }
 
-}
-
-if (direction === "cw") {
-    if (z === 3) {
-        z = 0;
-        console.log(x + "," + y + "," + z);
-        getLocation();
-    } else {
-        z++;
-     console.log(x + "," + y + "," + z);
-     getLocation();
-    }
-}
-
-if (direction === "ccw") {
-    if (z === 0) {
-        z = 3;
-        console.log(x + "," + y + "," + z);
-        getLocation();
-    } else {
-        z--;
-        console.log(x + "," + y + "," + z);
-        getLocation();
-    }
-
-}
-
-    }; 
-
-function getLocation() {
-    if ((x === 5) && (y === 2)) {
-        console.log("You are in the front yard.");
-
-        if (z === 0) {
-            console.log("You are facing towards the front door.");
-        } else if (z === 1) {
-            console.log("You are looking west on Simpson Street toward Public Road.");
-        } else if (z === 2) {
-            console.log("You are facing away from the front door.");
-        } else if (z === 3) {
-            console.log("You are looking east on Simpson Street, toward the historic business district.");
-        } 
-
-    }
-
-    if ((x === 4) && (y === 1)) {
-        console.log("You are in the business exhibit.");
-
-        if (z === 0) {
-            console.log("You are facing towards our upcoming Notable Persons exhibit.");
-        } else if (z === 1) {
-            console.log("You are facing towards the foyer.");
-        } else if (z === 2) {
-            console.log("You are facing our historic businesses exhbit, and the harmonium.");
-        } else if (z === 3) {
-            console.log("You are looking towards the window.");
-        } 
-
-    }
-
-    if ((x === 4) && (y === 2)) {
-        console.log("You are in the foyer.");
-
-        if (z === 0) {
-            console.log("You are facing toward the mining equipment exhibit. You can see the house's original colonade feature, and above it, the check tag board from the Black Diamond Mine.");
-        } else if (z === 1) {
-            console.log("You are facing towards our displays for Lafayette High School, the Great Snowstorm of 1913, and the Lafayette Elementary fire of 1964");
-        } else if (z === 2) {
-            console.log("You are facing toward Simpson Street. You can see a display on the Lewis House, and the Black Diamond Mine");
-        } else if (z === 3) {
-            console.log("You are looking toward our Dr. Wolf bookcase, and the business exhibit.");
-        } 
-    }
-
-    if ((x === 3) && (y === 1)) {
-        console.log("You are in the high school exhibit.");
-
-        if (z === 0) {
-            console.log("You are facing towards our Johnny Manazanares Trophy case. These trophies were won by Lafayette High Students.");
-        } else if (z === 1) {
-            console.log("You are looking back toward the mining equipment room. On the right are two baseball jerseys from Lafayette's past.");
-        } else if (z === 2) {
-            console.log("You are looking towards our TV, where we show the short, two-part documentary Stories of Lafayette.");
-        } else if (z === 3) {
-            console.log("You are looking at our sliding display, with a collection of facts and photos from city history.");
-        } 
-        
-    }
-
-    if ((x === 3) && (y === 2)) {
-        console.log("You are in the mining equipment exhibit.");
-
-        if (z === 0) {
-            console.log("You are facing towards our scale model of the Simpson Mine, and displays about historic Lafayette mines.");
-        } else if (z === 1) {
-            console.log("You are facing towards our maps of Lafayette coal mines, and a mining tool display.");
-        } else if (z === 2) {
-            console.log("You are looking back towards the foyer.");
-        } else if (z === 3) {
-            console.log("You are looking at our upright mine tool display, featuring hard hats, lanterns, and samples of coal. To the right of the case, you may enter the high school exhibit.");
-        } 
-        
-    }
-
-    if ((x === 2) && (y === 2)) {
-        console.log("You are in the kitchen exhibit.");
-
-        if (z === 0) {
-            console.log("You are looking towards our back porch, containing our farming exhibit.");
-        } else if (z === 1) {
-            console.log("You are looking at our coffee machine, and a map of the Northern Coal Field from the late 1970s.");
-        } else if (z === 2) {
-            console.log("You are looking at our glassware display, featuring a china set owned by town founder Mary Miller, sets of depression and carnival glass, and glass containing uranium. To the left is a doorway back to the mining equipment exhibit");
-        } else if (z === 3) {
-            console.log("You are facing towards our restroom. The pantry is on the right.");
-        } 
-    }
-
-    if ((x === 1) && (y === 2)) {
-        console.log("You are in the farming exhibit.");
-
-        if (z === 0) {
-            console.log("You are facing towards our museum back door. On the left is a two-man timber saw, about six feet long");
-        } else if (z === 1) {
-            console.log("You are facing towards our farming tool display.");
-        } else if (z === 2) {
-            console.log("On the left, a doorway leads back to the kitchen exhibit. In front of you is a wooden table, brought here by covered wagon in the 1860s.");
-        } else if (z === 3) {
-            console.log("You are looking towards Harrison Avenue. In front of the window is a hand-powered washing machine, and to the left, along the wall, is an old wine press.");
-        } 
-    }
-
+    infoPackage();
 };
+
+// This function will give the user a message based on their position.
+// The general if-statement takes two coordinates to show which cell the user is in.
+// The nested if-statement shows different messages for each of the possible directions.
+
+// This function can also be used to add ambient audio based on room, and load photos/video
+
+function getLocation(array) {
+    for (let i = 0; i < array.length; i++) {
+        if (x === i) {
+            for (let j = 0; j < array[i].length; j++) {
+                if (y === j) {
+                    $("p#xyCoordinateText").html(array[x][y].RoomText);
+                    for (let k = 0; k < array[i][j].zArray.length; k++) {
+                        if (z === k) {
+                            $("#picture").attr("src", "images/x" + x + "y" + y + "z" + z + ".JPG");
+                        }
+                    }
+                }
+            }
+        }
+    }
+};
+
+function createPopUpDiv() {
+    var popUpDiv = $("<div>");
+    popUpDiv.attr("id", "popUpDiv");
+    var closeButton = $("<div>");
+    closeButton.attr("id", "closeButtonDiv");
+    closeButton.html("x");
+    closeButton.appendTo(popUpDiv);
+    popUpDiv.appendTo($("#imageContainer"));
+    popUpDiv.css({ opacity: 0 });
+}
+createPopUpDiv();
+
+$(document).ready(function() {
+    $("#picture").click(function(event) {
+        $("#popUpDiv").css({ opacity: 1 });
+    });
+});
+
+$(document).ready(function() {
+    $("#closeButtonDiv").click(function(event) {
+        console.log("I was clicked!");
+        $("#popUpDiv").css({ opacity: 0 });
+    });
+})
+
