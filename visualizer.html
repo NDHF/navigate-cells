@@ -50,60 +50,38 @@
     <p class="attribution"><a href="https://www.freepik.com/free-photos-vectors/background">Background image created by Kues1 - Freepik.com</a></p>
 
     <script>
-        //         var squareArray = [
 
+        // Suggested starting coordinates: x = 2, y = 2      
+        // var squareArray = [
         // [ [ ], [ ], [ ], [ ] ],
         // [ [ ], [0], [0], [ ] ],
         // [ [ ], [0], [0], [ ] ],
         // [ [ ], [ ], [ ], [ ] ]
+        // ];
 
+        // Suggested starting coordinates: x = 8, y = 5
+        // var bigSquareArray = [
+        //     [ [], [ ], [ ], [ ], [ ], [ ], [ ], [ ], [ ], [] ],
+        //     [ [], [ ], [0], [0], [0], [0], [0], [0], [ ], [] ],
+        //     [ [], [0], [0], [0], [0], [0], [0], [0], [0], [] ],
+        //     [ [], [0], [0], [0], [0], [0], [0], [0], [0], [] ],
+        //     [ [], [0], [0], [0], [ ], [ ], [0], [0], [0], [] ],
+        //     [ [], [0], [0], [0], [ ], [ ], [0], [0], [0], [] ],
+        //     [ [], [0], [0], [0], [0], [0], [0], [0], [0], [] ],
+        //     [ [], [0], [0], [0], [0], [0], [0], [0], [0], [] ],
+        //     [ [], [ ], [0], [0], [0], [0], [0], [0], [ ], [] ],
+        //     [ [], [ ], [ ], [ ], [ ], [ ], [ ], [ ], [ ], [] ],
         // ];
 
         var museumArray = [
 
-            [
-                [],
-                [],
-                [],
-                []
-            ],
-            [
-                [],
-                [],
-                [0, 1, 2, 3],
-                []
-            ],
-            [
-                [],
-                [],
-                [0, 1, 2, 3],
-                []
-            ],
-            [
-                [],
-                [0, 1, 2, 3],
-                [0, 1, 2, 3],
-                []
-            ],
-            [
-                [],
-                [0, 1, 2, 3],
-                [0, 1, 2, 3],
-                []
-            ],
-            [
-                [],
-                [],
-                [0, 1, 2, 3],
-                []
-            ],
-            [
-                [],
-                [],
-                [],
-                []
-            ]
-
+            [ [], [          ], [          ], [] ],
+            [ [], [          ], [0, 1, 2, 3], [] ],
+            [ [], [          ], [0, 1, 2, 3], [] ],
+            [ [], [0, 1, 2, 3], [0, 1, 2, 3], [] ],
+            [ [], [0, 1, 2, 3], [0, 1, 2, 3], [] ],
+            [ [], [          ], [0, 1, 2, 3], [] ],
+            [ [], [          ], [          ], [] ]
         ];
 
         var x = 5;
@@ -119,6 +97,13 @@
 
         var moveForwardYes = ((direction === "forward") && (canMoveForward === true));
         var moveBackwardYes = ((direction === "backward") && (canMoveBackward === true));
+
+        var lastFaced = "down";
+        var isFunctionRunning = false;
+
+        // To try a different array, pass its name in as the argument for the launcher function below, and when infoPackage is called at line 288.
+
+        launcher(museumArray);
 
         // GLOBAL VARIABLES AND FUNCTIONS END
 
@@ -159,8 +144,6 @@
                 }
             }
         }
-
-        var lastFaced = "down";
 
         function addColor(array) {
             $("td").html("");
@@ -209,8 +192,6 @@
             flipImage();
         };
 
-        launcher(museumArray);
-
         function showCoordinates() {
             console.log(x + ", " + y + ", " + z);
         };
@@ -247,8 +228,6 @@
 
         // These functions are called each time a player calls the navigate() function,
         // so they are bundled together. 
-
-        var isFunctionRunning = false;
 
         function disableMovement() {
             console.log("Disable Movement was called");
@@ -306,7 +285,7 @@
             } else if ((direction === "right") && (canMoveRight === true)) {
                 y++;
             }
-            infoPackage(museumArray);
+            infoPackage(museumArray); 
         };
 
         // rotateWithMouse FUNCTIONS
