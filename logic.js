@@ -1,9 +1,9 @@
 // A simple program for navigating a multidimensional array
 
-//Even though I am navigating in two-dimensional space, my array has three dimensions:
-//One for going up and down
-//One for going side to side
-//One for rotating in place
+// Even though I am navigating in two-dimensional space, my array has three dimensions:
+// One for going up and down
+// One for going side to side
+// One for rotating in place
 
 
 // Within the sub-sub-arrays:

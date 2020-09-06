@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Bullet Animation</title>
+    <!-- Inline Style -->
+    <style>
+
+        div#container {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .seashellDiv {
+            height: 50px;
+            width: 50px;
+            background-color: seashell;
+            border: 1px solid black;
+            margin-left: auto;
+            margin-right: auto;
+            float: left;
+        }
+
+        .bullet {
+            position: relative;
+            height: 5px;
+            width: 5px;
+            background-color: red;
+            border: 1px solid black;
+            top: 20px;
+            animation-name: bulletFly;
+            animation-duration: 10s;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+        }
+
+        @keyframes bulletFly {
+            from {
+                left: 50px;
+            }
+
+            to {
+                left: 0px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="container">
+
+    </div>
+
+    <script src="bullet.js"></script>
+</body>
+
+</html>
